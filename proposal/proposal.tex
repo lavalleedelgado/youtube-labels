@@ -1,0 +1,72 @@
+\documentclass[letterpaper, 10pt]{article}
+
+\usepackage[margin=1in]{geometry}   % Sets one-inch margins.
+\usepackage{lmodern}                % Sets the font.
+\usepackage{enumerate}              % Gives enumeration options.
+\usepackage{amsmath}                % Handles equations.
+\usepackage{booktabs}               % Makes publication-quality tables.
+\usepackage{multirow}               % Allows multi-row cells.
+\usepackage[table]{xcolor}          % Colors table cells.
+\usepackage{caption}                % Writes captions for tables and figures.
+\usepackage{subcaption}             % Writes captions for subfigures.
+\usepackage{tikz}                   % Draws vector graphics.
+\usetikzlibrary{positioning}        % Allows relative positioning in tikz.
+\usepackage{float}                  % Places figure where it occurs in the file.
+\usepackage[export]{adjustbox}      % Scales figures into a bounding box.
+\usepackage{fancyvrb}               % Writes blocks of code as-is.
+\usepackage{soul}                   % Highlights text.
+\usepackage{calc}
+\usepackage{ifthen}
+
+% Import pgf files with raster images.
+\usepackage{pgf}
+\newcommand\inputpgf[2]{{
+\let\pgfimageWithoutPath\pgfimage
+\renewcommand{\pgfimage}[2][]{\pgfimageWithoutPath[##1]{#1/##2}}
+\input{#1/#2}
+}}
+
+% Skip lines between paragraphs.
+\usepackage{parskip}
+\setlength{\parskip}{1em}
+
+% Include a subtitle in the title block.
+\usepackage{titling}
+\newcommand{\subtitle}[1]{
+    \posttitle{
+        \par\end{center}
+        \begin{center}\large#1\end{center}
+        \vskip0.5em
+    }
+}
+
+% Remove footnote indentation of references in the title block.
+\settowidth{\thanksmarkwidth}{*}
+\setlength{\thanksmargin}{-\thanksmarkwidth}
+
+% Write the title block.
+\setlength{\droptitle}{-2em}
+\title{Reverse-engineering User Selection of YouTube Video Categories}
+\subtitle{\textit{CAPP 30255: Advanced Machine Learning for Public Policy}}
+\author{Ta-Yun Yang \& Patrick Lavallee Delgado\thanks{Candidates, MS Computational Analysis and Public Policy, \{tayuny, pld\}@uchicago.edu.}}
+\date{20 April 2020}
+
+% Add page headers.
+\usepackage{titleps}
+\newpagestyle{page_headers}{
+  \headrule
+  \sethead{\thetitle}{}{\sectiontitle}
+  \setfoot{}{\thepage}{}
+}
+\settitlemarks{section,subsection}
+\pagestyle{page_headers}
+
+\begin{document}
+
+\maketitle
+
+\section{Overview}
+
+We aim to classify YouTube videos to the categories selected by their authors using language available in the their titles, descriptions, and tags. While categories on YouTube are perhaps relics from how people used to browse videos, they do offer insight to how authors associate their content with those high-level abstractions. We hope to identify semantic associations between the distinguishing particulars of a video and the location in the corpus of user-generated content that its author intended.
+
+\end{document}
