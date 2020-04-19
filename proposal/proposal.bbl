@@ -1,0 +1,45 @@
+\begin{thebibliography}{1}
+
+\bibitem{blei-etal-2003-latent}
+David~M. Blei, Andrew~Y. Ng, and Michael~I. Jordan.
+\newblock Latent {D}irichlet allocation.
+\newblock {\em Journal of Machine Learning Research}, 3:993--1022, 2003.
+
+\bibitem{choi-etal-2001-latent}
+Freddy Y.~Y. Choi, Peter Wiemer-Hastings, and Johanna Moore.
+\newblock Latent semantic analysis for text segmentation.
+\newblock In {\em Proceedings of the 2001 Conference on Empirical Methods in
+  Natural Language Processing}, 2001.
+
+\bibitem{galley-etal-2003-discourse}
+Michel Galley, Kathleen~R. McKeown, Eric Fosler-Lussier, and Hongyan Jing.
+\newblock Discourse segmentation of multi-party conversation.
+\newblock In {\em Proceedings of the 41st Annual Meeting of the Association for
+  Computational Linguistics}, pages 562--569, Sapporo, Japan, July 2003.
+  Association for Computational Linguistics.
+
+\bibitem{hearst-1997-texttiling}
+Marti~A. Hearst.
+\newblock {T}ext{T}iling: Segmenting text into multi-paragraph subtopic
+  passages.
+\newblock {\em Computational Linguistics}, 23(1):33--64, 1997.
+
+\bibitem{joty-etal-2013-topic}
+Shafiq Joty, Giuseppe Carenini, and Raymond~T. Ng.
+\newblock Topic segmentation and labeling in asynchronous conversations.
+\newblock {\em Journal of Artificial Intelligence Research}, 47:521--573, 2013.
+
+\bibitem{morris-hirst-1991-lexical}
+Jane Morris and Graeme Hirst.
+\newblock Lexical cohesion computed by thesaural relations as an indicator of
+  the structure of text.
+\newblock {\em Computational Linguistics}, 17(1):21--48, 1991.
+
+\bibitem{riedl-biemann-2012-topictiling}
+Martin Riedl and Chris Biemann.
+\newblock {T}opic{T}iling: A text segmentation algorithm based on {LDA}.
+\newblock In {\em Proceedings of {ACL} 2012 Student Research Workshop}, pages
+  37--42, Jeju Island, Korea, July 2012. Association for Computational
+  Linguistics.
+
+\end{thebibliography}

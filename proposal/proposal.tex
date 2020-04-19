@@ -1,7 +1,8 @@
-\documentclass[letterpaper, 10pt]{article}
+\documentclass[letterpaper, 12pt]{article}
 
 \usepackage[margin=1in]{geometry}   % Sets one-inch margins.
 \usepackage{lmodern}                % Sets the font.
+\usepackage{cite}                   % Supports BibTeX citations.
 \usepackage{enumerate}              % Gives enumeration options.
 \usepackage{amsmath}                % Handles equations.
 \usepackage{booktabs}               % Makes publication-quality tables.
@@ -46,7 +47,7 @@
 
 % Write the title block.
 \setlength{\droptitle}{-2em}
-\title{Reverse-engineering User Selection of YouTube Video Categories}
+\title{Reverse-engineering Self-selection into YouTube Video Categories}
 \subtitle{\textit{CAPP 30255: Advanced Machine Learning for Public Policy}}
 \author{Ta-Yun Yang \& Patrick Lavallee Delgado\thanks{Candidates, MS Computational Analysis and Public Policy, \{tayuny, pld\}@uchicago.edu.}}
 \date{20 April 2020}
@@ -65,8 +66,21 @@
 
 \maketitle
 
-\section{Overview}
+\section{Introduction}
 
-We aim to classify YouTube videos to the categories selected by their authors using language available in the their titles, descriptions, and tags. While categories on YouTube are perhaps relics from how people used to browse videos, they do offer insight to how authors associate their content with those high-level abstractions. We hope to identify semantic associations between the distinguishing particulars of a video and the location in the corpus of user-generated content that its author intended.
+When forced to choose an identity, how do we reconcile everything about ourselves into the confines of a label? And despite everything that seems to separate some of us, how is it that we still identify the same? Broad categories are convenient for individuals to sort their preferences into cultures, politics, and other social phenomena, but messy because the ambiguity of language allows each to attach his or her own meaning to those labels. While there may exist quantitative markers with which to explain why an individual subscribes to one category and not another, language in other self-expression is interesting because word choice demonstrates additional stated preference for substantiating the same.
+
+YouTube offers a version of this challenge. As a user upload video content, he must describe the work in the title, description, tags, and category. The user may use any words he wishes, so long as he remains consistent with YouTube's community guidelines, but he is limited by the categories available and he must choose exactly one category. These categories are broad and several may apply to a video. For example, a funny video of a dog playing volleyball could conceivably exist in the ``Pets \& Animals'', ``Sports'', and ``Comedy'' categories. Which does the user choose and why? We attempt to answer these questions using the rest of his own description of the video to recreate his decision.
+
+Our data collects the descriptions and activity statistics of the 200 most-watched videos in a week for every week between January 2017 and May 2018. The data has two levels: words in videos and videos in categories.
+
+\section{Related work}
+
+Our challenge is fundamentally an exercise in \textit{text segmentation}, grouping language into coherent topic clusters using the lexical cohesion that arises from the semantic relationships between words. An early attempt to group text with shared meaning is lexical chaining \cite{morris-hirst-1991-lexical}, which links nearby words on whether they exist in related thesaurus categories and evaluates the strength of the resulting chains on frequency and density. This inspired years of work on unsupervised text segmentation, which uses the frequency and co-occurrence of words to identify topic boundaries in a text. Among the first of these algorithms is TextTiling \cite{hearst-1997-texttiling}, which compares the lexical similarity of adjacent sentence groups from the words those sentences share, and finds a topic boundary where the similarity of words between those groups is low. The choice in topic boundary from several possibilities improves with Latent Semantic Analysis (LDA) \cite{choi-etal-2001-latent}, which uses principle component analysis to cluster the frequency of co-occurring words in order to reveal semantic dissimilarities between sentence groups.
+
+Beyond the neatness of written text, this area of research also explores language with multiple participants at different times. Addressing this variation in meeting transcripts is the Lexical Cohesion-based Segmenter (LCSeg) algorithm \cite{galley-etal-2003-discourse}, which identifies lexical chains on word frequency alone and compares the cosine similarity of lexical chains among adjacent sentence groups to identify potential topic boundaries in a manner similar to TextTiling. Other work extends LCSeg to asynchronous conversations in emails threads and blog comments \cite{joty-etal-2013-topic}, which draws paths between sequential fragments in different texts and consolidates topic clusters that LCSeg identifies with those that have a high cosine similarity among their sentences. A generative approach is the TopicTiling algorithm \cite{riedl-biemann-2012-topictiling}, which uses latent Dirichlet allocation (LDA) \cite{blei-etal-2003-latent} to generate topic-word and topic-document probability distributions from a corpus of non-sequential documents that can associate topics to words in a document; in an extension of TextTiling, it finds a topic boundary where the cosine similarity of topics between sentence groups is low.
+
+\bibliographystyle{plain}
+\bibliography{../research/citations}
 
 \end{document}
