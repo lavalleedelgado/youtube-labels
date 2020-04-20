@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex proposal"] 1587318650 "proposal.aux" "proposal.bbl" "proposal" 1587318652
-  "../research/citations.bib" 1587310732 5433 6990deb09f7c4790de4efe8a4305064d ""
+["bibtex proposal"] 1587342856 "proposal.aux" "proposal.bbl" "proposal" 1587345020
+  "../research/citations.bib" 1587338273 6231 31a0ca4c989803a6c62700c4adbb61c9 ""
   "/usr/local/texlive/2019/texmf-dist/bibtex/bst/base/plain.bst" 1292289607 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "proposal.aux" 1587318651 802 21da7ae7da901bd4bfc67e80bc967134 "pdflatex"
+  "proposal.aux" 1587345020 1045 94675ac47f2446d5e532bb9b098c930a "pdflatex"
   (generated)
   "proposal.blg"
   "proposal.bbl"
-["pdflatex"] 1587318651 "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.tex" "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.pdf" "proposal" 1587318652
-  "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.aux" 1587318651 802 21da7ae7da901bd4bfc67e80bc967134 ""
-  "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.tex" 1587318648 6558 95a3b809bef6b5dde6c1a411528321b4 ""
+["pdflatex"] 1587345019 "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.tex" "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.pdf" "proposal" 1587345020
+  "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.aux" 1587345020 1045 94675ac47f2446d5e532bb9b098c930a ""
+  "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.tex" 1587345018 8330 84d2ff3bf07d4bf0e364e6401f94f13e ""
   "/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc" 1202520719 2840 216e6e45ad352e2456e1149f28885bee ""
   "/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc" 1202520719 2327 9d6df24f9c4f7368395224341a95523a ""
   "/usr/local/texlive/2019/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
@@ -170,12 +170,12 @@
   "/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1557342064 3277517 23507ed665b4dd9046f0f2a94bbef2be ""
   "/usr/local/texlive/2019/texmf-var/web2c/pdftex/pdflatex.fmt" 1557342086 4259635 562fc36ec496993777a6c428d8bfb811 ""
   "/usr/local/texlive/2019/texmf.cnf" 1557341546 577 d150fef99ac436ad1156e86b0892f6ef ""
-  "proposal.aux" 1587318651 802 21da7ae7da901bd4bfc67e80bc967134 "pdflatex"
-  "proposal.bbl" 1587318651 1867 8cd580731e35adfdaeedf4913bb6a538 "bibtex proposal"
-  "proposal.tex" 1587318648 6558 95a3b809bef6b5dde6c1a411528321b4 ""
+  "proposal.aux" 1587345020 1045 94675ac47f2446d5e532bb9b098c930a "pdflatex"
+  "proposal.bbl" 1587342857 2783 e12d20e6273c29c6e1728e1ef5c69766 "bibtex proposal"
+  "proposal.tex" 1587345018 8330 84d2ff3bf07d4bf0e364e6401f94f13e ""
   (generated)
-  "proposal.aux"
-  "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.log"
   "proposal.pdf"
   "proposal.log"
   "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.pdf"
+  "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.log"
+  "proposal.aux"

@@ -34,11 +34,11 @@
 % Include a subtitle in the title block.
 \usepackage{titling}
 \newcommand{\subtitle}[1]{
-    \posttitle{
-        \par\end{center}
-        \begin{center}\large#1\end{center}
-        \vskip0.5em
-    }
+  \posttitle{
+      \par\end{center}
+      \begin{center}\large#1\end{center}
+      \vskip0.5em
+  }
 }
 
 % Remove footnote indentation of references in the title block.
@@ -78,7 +78,13 @@ Our data collects the descriptions and activity statistics of the 200 most-watch
 
 Our challenge is fundamentally an exercise in \textit{text segmentation}, grouping language into coherent topic clusters using the lexical cohesion that arises from the semantic relationships between words. An early attempt to group text with shared meaning is lexical chaining \cite{morris-hirst-1991-lexical}, which links nearby words on whether they exist in related thesaurus categories and evaluates the strength of the resulting chains on frequency and density. This inspired years of work on unsupervised text segmentation, which uses the frequency and co-occurrence of words to identify topic boundaries in a text. Among the first of these algorithms is TextTiling \cite{hearst-1997-texttiling}, which compares the lexical similarity of adjacent sentence groups from the words those sentences share, and finds a topic boundary where the similarity of words between those groups is low. The choice in topic boundary from several possibilities improves with Latent Semantic Analysis (LDA) \cite{choi-etal-2001-latent}, which uses principle component analysis to cluster the frequency of co-occurring words in order to reveal semantic dissimilarities between sentence groups.
 
-Beyond the neatness of written text, this area of research also explores language with multiple participants at different times. Addressing this variation in meeting transcripts is the Lexical Cohesion-based Segmenter (LCSeg) algorithm \cite{galley-etal-2003-discourse}, which identifies lexical chains on word frequency alone and compares the cosine similarity of lexical chains among adjacent sentence groups to identify potential topic boundaries in a manner similar to TextTiling. Other work extends LCSeg to asynchronous conversations in emails threads and blog comments \cite{joty-etal-2013-topic}, which draws paths between sequential fragments in different texts and consolidates topic clusters that LCSeg identifies with those that have a high cosine similarity among their sentences. A generative approach is the TopicTiling algorithm \cite{riedl-biemann-2012-topictiling}, which uses latent Dirichlet allocation (LDA) \cite{blei-etal-2003-latent} to generate topic-word and topic-document probability distributions from a corpus of non-sequential documents that can associate topics to words in a document; in an extension of TextTiling, it finds a topic boundary where the cosine similarity of topics between sentence groups is low.
+Beyond the neatness of written text, this area of research also explores language with multiple participants at different times. Addressing this variation in meeting transcripts is the Lexical Cohesion-based Segmenter (LCSeg) algorithm \cite{galley-etal-2003-discourse}, which identifies lexical chains on word frequency alone and compares the cosine similarity of lexical chains among adjacent sentence groups to identify potential topic boundaries in a manner similar to TextTiling. Other work extends LCSeg to asynchronous conversations in emails threads and blog comments \cite{joty-etal-2013-topic}, which draws paths to sequential fragments in different texts and consolidates topic clusters that LCSeg identifies with those that have a high cosine similarity among their sentences. A generative approach is the TopicTiling algorithm \cite{riedl-biemann-2012-topictiling}, which uses latent Dirichlet allocation (LDA) \cite{blei-etal-2003-latent} to estimate topic-word and topic-document probability distributions from a corpus of text that can associate topics to words in a document; in an extension of TextTiling, it finds a topic boundary where the cosine similarity of topics between sentence groups is low.
+
+Recent advances in text segmentation use word embeddings, a departure from one-hot encodings that represent each word as its own dimension towards dense encodings that represent words as vectors in space. Training continuous vector representations of words with domain-specific text becomes its own task \cite{mikolov-etal-2013-efficient}. Among algorithms that demonstrate this improvement is GraphSeg \cite{glavas-etal-2016-unsupervised}, which draws a semantic relatedness graph of each sentence in a document to all others and creates segments composed of the adjacent sentences in maximal cliques; It calculates similarity of sentences as the sum of cosines of the embedding vector of each word in one sentence to that of each word in the other.
+
+The discipline builds to deep neural networks, perhaps the best approach to the problem we pursue. In a very similar case recovering the subsection titles of Wikipedia articles, the Sector algorithm \cite{sebastian-etal-2019-sector} learns an embedding of latent topics from ambiguous headings, segments the the document into coherent sections, and labels each section with a learned topic. It uses bidirectional long short-term memory (BLSTM) networks to generate the dense topic embedding matrix. For the text segmentation phase, Sector traces movement in the topic embedding vector space over sentence groups and identifies a new section where that movement is fastest. For the section label decoding phase, it identifies the heading whose words have the strongest association with the topic embedding matrix. In a further departure from previous work, the end-to-end framework in Sector recasts text segmentation as a semi-supervised task: learning the semantic similarities of the text to define the scope of topics that in turn segment the text.
+
+
 
 \bibliographystyle{plain}
 \bibliography{../research/citations}

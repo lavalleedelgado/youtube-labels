@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  19 APR 2020 13:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  19 APR 2020 21:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -643,15 +643,15 @@ LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <7> not available
 
 {/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] (/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.bbl [2]) [3] (/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.aux) ) 
 Here is how much of TeX's memory you used:
- 16485 strings out of 492616
- 314568 string characters out of 6129482
- 371657 words of memory out of 5000000
- 20042 multiletter control sequences out of 15000+600000
+ 16490 strings out of 492616
+ 314672 string characters out of 6129482
+ 372667 words of memory out of 5000000
+ 20047 multiletter control sequences out of 15000+600000
  39126 words of font info for 35 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,12n,48p,1378b,315s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,12n,48p,1353b,315s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}</usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/public/lm/lmsy7.pfb>
-Output written on "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.pdf" (3 pages, 141643 bytes).
+Output written on "/Users/patrick/OneDrive/University of Chicago/CAPP 30255 ML/youtube-labels/proposal/proposal.pdf" (3 pages, 144922 bytes).
 PDF statistics:
  47 PDF objects out of 1000 (max. 8388607)
  34 compressed objects within 1 object stream

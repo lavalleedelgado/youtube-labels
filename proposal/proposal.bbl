@@ -1,4 +1,12 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{sebastian-etal-2019-sector}
+Sebastian Arnold, Rudolf Schneider, Philippe Cudré-Mauroux, Felix~A. Gers, and
+  Alexander Löser.
+\newblock Sector: A neural model for coherent topic segmentation and
+  classification.
+\newblock {\em Transactions of the Association for Computational Linguistics},
+  7:169--184, 2019.
 
 \bibitem{blei-etal-2003-latent}
 David~M. Blei, Andrew~Y. Ng, and Michael~I. Jordan.
@@ -18,6 +26,13 @@ Michel Galley, Kathleen~R. McKeown, Eric Fosler-Lussier, and Hongyan Jing.
   Computational Linguistics}, pages 562--569, Sapporo, Japan, July 2003.
   Association for Computational Linguistics.
 
+\bibitem{glavas-etal-2016-unsupervised}
+Goran Glava{\v{s}}, Federico Nanni, and Simone~Paolo Ponzetto.
+\newblock Unsupervised text segmentation using semantic relatedness graphs.
+\newblock In {\em Proceedings of the Fifth Joint Conference on Lexical and
+  Computational Semantics}, pages 125--130, Berlin, Germany, August 2016.
+  Association for Computational Linguistics.
+
 \bibitem{hearst-1997-texttiling}
 Marti~A. Hearst.
 \newblock {T}ext{T}iling: Segmenting text into multi-paragraph subtopic
@@ -28,6 +43,11 @@ Marti~A. Hearst.
 Shafiq Joty, Giuseppe Carenini, and Raymond~T. Ng.
 \newblock Topic segmentation and labeling in asynchronous conversations.
 \newblock {\em Journal of Artificial Intelligence Research}, 47:521--573, 2013.
+
+\bibitem{mikolov-etal-2013-efficient}
+Tomas Mikolov, Greg Corrado, Kai Chen, and Jeffrey Dean.
+\newblock Efficient estimation of word representations in vector space.
+\newblock {\em CoRR}, pages 1--12, January 2013.
 
 \bibitem{morris-hirst-1991-lexical}
 Jane Morris and Graeme Hirst.
