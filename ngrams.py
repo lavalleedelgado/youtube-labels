@@ -25,12 +25,12 @@ def make_ngrams(text: str, n: int) -> dict:
     grams = {}
     # Consider each character in the string.
     for i in range(len(text) - n - 1):
-        # Get the n-grams at this index.
+        # Get the n-gram at this index.
         gram = text[i:i + n]
-        # Add this n-grams to the dictionary if it does not yet exist.
+        # Add this n-gram to the dictionary if it does not yet exist.
         if not grams.get(gram):
             grams[gram] = 0
-        # Increment the count of this n-grams by one.
+        # Increment the count of this n-gram by one.
         grams[gram] += 1
     # Return the mapping of n-grams to frequencies.
     return grams
