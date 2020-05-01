@@ -24,7 +24,7 @@ def make_ngrams(text: str, n: int) -> dict:
     # Initialize a mapping of n-grams to frequencies.
     grams = {}
     # Consider each character in the string.
-    for i in range(len(text) - n - 1):
+    for i in range(len(text) - n + 1):
         # Get the n-gram at this index.
         gram = text[i:i + n]
         # Add this n-gram to the dictionary if it does not yet exist.
