@@ -56,10 +56,11 @@ def tokenized_tags(tag):
     '''
     The helper function to exclude delimiter in tags
     '''
+    # Regex can do this more simply: re.sub('\|', ' ', tag)
+    # Or with string methods alone: ' '.join(tag.split('|'))
     single_tag = ""
     for tag in tag.split("|"):
         single_tag = single_tag + " " + tag
-    
     return single_tag
 
 def combine_text(text_arr, tag_idx, other_idx):
