@@ -1,2 +1,3 @@
 research/
-.vscode/
+.vscode/__pycache__/
+.ipynb_checkpoints/
