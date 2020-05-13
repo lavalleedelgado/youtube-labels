@@ -56,11 +56,10 @@ def tokenized_tags(tag):
     '''
     The helper function to exclude delimiter in tags
     '''
-    # Regex can do this more simply: re.sub('\|', ' ', tag)
-    # Or with string methods alone: ' '.join(tag.split('|'))
     single_tag = ""
     for tag in tag.split("|"):
         single_tag = single_tag + " " + tag
+    
     return single_tag
 
 def combine_text(text_arr, tag_idx, other_idx):
@@ -102,8 +101,7 @@ def tfidf_tokenization(arr):
 
 # Dimensional Reduction and LSI
 
-def dimensional_reduction(df, k, y, allm=False, get_weight=False, 
-                          get_test_df=False, test_df=""):
+def dimensional_reduction(df, k, get_test_df=False, test_df=""):
     '''
     The function is designed to make dimensional reduction with SVD method
     Inputs:
@@ -118,16 +116,9 @@ def dimensional_reduction(df, k, y, allm=False, get_weight=False,
     U_k = np.linalg.svd(df)[0][:, :k]
     sigma_k = np.linalg.svd(df)[1][:k]
     Vt_k = np.linalg.svd(df)[2][:k, :]
-    
-    if get_weight:
-        return (np.transpose(Vt_k)).dot(((np.linalg.pinv(
-                preprocess_sigma(sigma_k, k, k)).dot(U_k.T)).dot(y)))
-    
-    if allm:
-        return U_k, sigma_k, Vt_k
 
     reduced_df = (Vt_k[:k, :].dot(df.T)).T
-    
+
     if get_test_df:
         return reduced_df, (Vt_k[:k, :].dot(test_df.T)).T
     
