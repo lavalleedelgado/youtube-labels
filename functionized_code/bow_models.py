@@ -1,99 +1,256 @@
+from typing import Type, Generator, Iterable, Tuple, List, Dict, Set, Any
+import re
+from sklearn.feature_extraction import stop_words
+from collections import Counter
+
 import numpy as np
-import pandas as pd
-import random
 import copy
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-import tokenization_dim_reduction as tdr
-import ngrams as ng
 
 label_to_ix = {0.0: 0, 1.0: 1}
 
-def ngram_creater(n, sentence, whole_grams):
-    '''
-    The function creates n-grams dictionary with its count
-    Input:
-        n: n for n-grams
-        sentence: single sentence passed in
-        whole_grams: dictionary with accumulated count
-    Returns:
-        grams: n-grams with its counts for the sentence
-        updated whole_grams
-    '''
-    grams = {}
-    word_lst = ng.clean_punctuation(sentence).split()
-    for i in range(len(word_lst) - n + 1):
-        gram = " ".join(word_lst[i:i + n])
-        if not grams.get(gram):
-            grams[gram] = 0
-            whole_grams[gram] = 0
-        grams[gram] += 1
-        whole_grams[gram] += 1
-    
-    return grams, whole_grams
+
+# Identify constants for vocabulary operations.
+DELIMITERS = re.compile(r' |\\n|\|')
+PUNCTUATION = re.compile(r'[.:;,?!\"|#()-_•]|^\'|\'$')
+STOP_WORDS = stop_words.ENGLISH_STOP_WORDS
+STOP_PATTERN = re.compile(r'http|www|^\s*$')
+UNK = '<unk>'
+PAD = '<pad>'
 
 
-def word_ngrams(n, txt_arr):
+def get_ngrams(
+    corpus: np.ndarray,
+    n: int,
+    k: int = 10000,
+    tokenize_pattern: re.Pattern = DELIMITERS,
+    clean_pattern: re.Pattern = PUNCTUATION,
+    stop_words: Set[str] = STOP_WORDS,
+    drop_pattern: re.Pattern = STOP_PATTERN
+) -> Dict[str, int]:
     '''
-    The function creates the ngrams with its corresponding
-    counts for the whole dataset
-    Inputs:
-        n: n for n-grams
-        txt_arr: all array with train, valid and test sets
-    Returns:
-        d-grams: dictionary of ngrams and counts of each row
-        whole_grams: dictionary with accumulated count
-    '''
-    whole_grams = {}
-    d_grams = {}
-    for didx, txt in enumerate(txt_arr):
-        grams, whole_grams = ngram_creater(n, txt, whole_grams)
-        d_grams[didx] = grams
+    Collect the indices of the k most frequent n-grams in the vocabulary.
 
-    return d_grams, whole_grams
+    corpus (np.ndarray): n x 1 array of text to parse.
+    n (int): length of n-gram, i.e. number of words to represent with one token.
+    k (int): number of most frequent words to keep.
+    tokenize_pattern (re.Pattern): regular expression for delimiters.
+    clean_pattern (re.Pattern): regular expression for substrings to remove.
+    stop_words (set): words to remove, i.e. articles, prepositions.
+    drop_pattern (re.Pattern): regular expression for words to remove.
 
-
-def word_to_index(n, txt_arr):
+    Return mapping of words to indices (dict).
     '''
-    The function assigns index to each unique words
-    or n-grams.
-    Inputs:
-        n: n for n-grams
-        txt_arr: all array with train, valid and test sets
-    Returns:
-        word_to_idx: dictionary mapping word to index
-        wtorch: dictionary mapping word to counts
-    '''
-    count = 0
-    word_to_idx = {}
-    _, whole_grams = word_ngrams(n, txt_arr)
-    wtorch = torch.zeros(len(whole_grams))
-    
-    for ngrams, ct in whole_grams.items():
-        word_to_idx[ngrams] = count
-        wtorch[count] = ct
-        count += 1
-    
-    return word_to_idx, wtorch
+    # Collect the vocabulary in the corpus.
+    vocab = __make_vocab(
+        corpus, n, tokenize_pattern, clean_pattern, stop_words, drop_pattern)
+    # Return the mapping of the k most frequent words to their indices.
+    return __make_index(vocab, k)
 
 
-def sentence_torch(grams, word_to_idx, wtorch):
+def get_bag_of_ngrams(
+    vocab: Dict[str, int],
+    sentence: str,
+    n: int,
+    tokenize_pattern: re.Pattern = DELIMITERS,
+    clean_pattern: re.Pattern = PUNCTUATION,
+    stop_words: Set[str] = STOP_WORDS,
+    drop_pattern: re.Pattern = STOP_PATTERN
+) -> torch.FloatTensor:
     '''
-    The function transfers a list of phrase to an
-    embedding vector.
-    Inputs:
-        grams: list of splitted sentence
-        word_to_idx: dictionary mapping word to index
-        wtorch: dictionary mapping word to counts
-    Return: an embedding vector 
+    Map n-grams in a sentence to their indices in the vocabulary.
+
+    vocab (dict): mapping of words to indices.
+    sentence (str): collection of words to process.
+    n (int): length of n-gram, i.e. number of words to represent with one token.
+    tokenize_pattern (re.Pattern): regular expression for delimiters.
+    clean_pattern (re.Pattern): regular expression for substrings to remove.
+    stop_words (set): words to remove, i.e. articles, prepositions.
+    drop_pattern (re.Pattern): regular expression for words to remove.
+
+    Return the bag of n-grams (torch.FloatTensor)
     '''
-    bow_vec = torch.zeros(len(word_to_idx))
-    for gram in grams:
-        bow_vec[word_to_idx[gram]] = wtorch[word_to_idx[gram]]
-        
-    return bow_vec
+    # Numericize the sentence.
+    sentence = __numericize_sentence(
+        vocab, sentence, n, tokenize_pattern, clean_pattern, stop_words, drop_pattern)
+    # Count each n-gram in the vocabulary that appears in the sentence.
+    bag_of_ngrams = torch.zeros(len(vocab))
+    for idx in sentence:
+        bag_of_ngrams[idx] += 1
+    # Return the bag of n-grams.
+    return bag_of_ngrams
+
+
+def __make_vocab(
+    corpus: np.ndarray,
+    n: int,
+    tokenize_pattern: re.Pattern,
+    clean_pattern: re.Pattern,
+    stop_words: Set[str],
+    drop_pattern: re.Pattern
+) -> Dict[str, int]:
+    '''
+    Collect the vocabulary in the corpus and tally the frequency of each word.
+    Identify words on the delimiter and clean them with a regular expression.
+
+    corpus (np.ndarray): n x 1 array of text to parse.
+    n (int): length of n-gram, i.e. number of words to represent with one token.
+    tokenize_pattern (re.Pattern): regular expression for delimiters.
+    clean_pattern (re.Pattern): regular expression for substrings to remove.
+    stop_words (set): words to remove, i.e. articles, prepositions.
+    drop_pattern (re.Pattern): regular expression for words to remove.
+
+    Return mapping of words to frequencies (dict).
+    '''
+    vocab = {}
+    # Consider each sentence in the corpus.
+    for sentence in corpus:
+        # Preprocess the sentence, i.e. tokenize, clean, drop, pad.
+        sentence = __make_sentence(
+            sentence, n, tokenize_pattern, clean_pattern, stop_words, drop_pattern)
+        # Consider each word, or possibly n-gram, in the sentence.
+        for w in range(len(sentence) - n):
+            # Collect this word or n-gram.
+            word = ' '.join(sentence[w:w + n])
+            # Update the frequency of this word or n-gram in the vocabulary.
+            if word not in vocab:
+                vocab[word] = 0
+            vocab[word] += 1
+    # Return the mapping of words to frequencies.
+    return vocab
+
+
+def __make_sentence(
+    sentence: str,
+    n: int,
+    tokenize_pattern: re.Pattern,
+    clean_pattern: re.Pattern,
+    stop_words: Set[str],
+    drop_pattern: re.Pattern
+) -> List[str]:
+    '''
+    Preprocess the sentence by tokenizing, cleaning, dropping stop words, and
+    including any padding.
+
+    sentence (str): collection of words to process.
+    n (int): length of n-gram, i.e. number of words to represent with one token.
+    tokenize_pattern (re.Pattern): regular expression for delimiters.
+    clean_pattern (re.Pattern): regular expression for substrings to remove.
+    stop_words (set): words to remove, i.e. articles, prepositions.
+    drop_pattern (re.Pattern): regular expression for words to remove.
+
+    Return processed sentence (list).
+    '''
+    # Tokenize the sentence on the delimiter.
+    sentence = __tokenize_words(sentence, tokenize_pattern)
+    # Clean words in the sentence.
+    sentence = [__clean_words(word, clean_pattern) for word in sentence]
+    # Drop any stop words in the sentence.
+    sentence = __drop_words(sentence, stop_words, drop_pattern)
+    # Pad both sides of the sentence.
+    sentence = [PAD] * (n - 1) + sentence + [PAD] * (n - 1)
+    # Return the sentence.
+    return sentence
+
+
+def __tokenize_words(text: str, pattern: re.Pattern) -> List[str]:
+    '''
+    Tokenize text on the delimiter.
+
+    text (str): collection of characters to tokenize.
+    pattern (re.Pattern): regular expression for delimiters.
+
+    Return tokenized text (list of strings).
+    '''
+    return re.split(pattern, text)
+
+
+def __clean_words(text: str, pattern: re.Pattern) -> str:
+    '''
+    Clean text of substrings.
+
+    text (str): collection of characters to clean.
+    pattern (re.Pattern): regular expression for substrings to remove.
+
+    Return cleaned text (str).
+    '''
+    return re.sub(pattern, '', text.lower())
+
+
+def __drop_words(
+    words: List[str],
+    stop_words: Set[str],
+    pattern: re.Pattern
+) -> List[str]:
+    '''
+    Remove words that are among the stop words or match a regular expression.
+
+    words (list): collection of words, i.e. a sentence.
+    stop_words (set): words to remove.
+    pattern (re.Pattern): regular expression for words to remove.
+
+    Return words (list).
+    '''
+    return [
+        word for word in words
+        if word not in stop_words and not re.search(pattern, word)
+    ]
+
+
+def __make_index(vocab: Dict[str, int], n: int) -> Dict[str, int]:
+    '''
+    Collect indices for the most frequent words in the vocabulary. Include
+    tokens for unknown words and padding.
+
+    vocab (dict): mapping of words to frequencies.
+    n (int): number of most frequent words to keep.
+
+    Return mapping of most frequent words to indices (dict).
+    '''
+    # Collect most the frequent words into a set.
+    vocab = {word for word, _ in Counter(vocab).most_common(n)}
+    # Include tokens for unknown words and padding.
+    vocab.update([UNK, PAD])
+    # Return the mapping of words to indices.
+    return {word: i for i, word in enumerate(vocab)}
+
+
+def __numericize_sentence(
+    vocab: Dict[str, int],
+    sentence: str,
+    n: int,
+    tokenize_pattern: re.Pattern,
+    clean_pattern: re.Pattern,
+    stop_words: Set[str],
+    drop_pattern: re.Pattern
+) -> List[int]:
+    '''
+    Represent each word in the sentence with its index in the vocabulary.
+
+    vocab (dict): mapping of words to indices.
+    sentence (str): collection of words to process.
+    n (int): length of n-gram, i.e. number of words to represent with one token.
+    tokenize_pattern (re.Pattern): regular expression for delimiters.
+    clean_pattern (re.Pattern): regular expression for substrings to remove.
+    stop_words (set): words to remove, i.e. articles, prepositions.
+    drop_pattern (re.Pattern): regular expression for words to remove.
+
+    Return the numericized sentence (list).
+    '''
+    new_sentence = []
+    # Preprocess the sentence, i.e. tokenize, clean, drop, pad.
+    sentence = __make_sentence(
+        sentence, n, tokenize_pattern, clean_pattern, stop_words, drop_pattern)
+    # Consider each word, or possibly n-gram, in the sentence.
+    for w in range(len(sentence) - n):
+        # Collect this word or n-gram.
+        word = ' '.join(sentence[w:w + n])
+        # Add the index of this word or n-gram to the new sentence.
+        new_sentence.append(vocab.get(word, vocab[UNK]))
+    # Return the numericized sentence.
+    return new_sentence
 
 
 def make_target(label, label_to_ix):
@@ -127,24 +284,24 @@ def run_bow_ngram(model, word_to_idx, wtorch, X_train, y_train,
         
             model.zero_grad()
         
-            sentence = X_train[idx]
-            grams, _ = ngram_creater(n, sentence, {})
-            bow_vec = sentence_torch(grams, word_to_idx, wtorch)
-        
-            pred = model(bow_vec.view(1,-1))
-            loss = loss_function(pred, make_target(y_train[idx, 0], label_to_ix))
+            # Complete forward propagation.
+            x = get_bag_of_ngrams(word_to_idx, X_train[idx], n)
+            y_hat = model(x.view(1, -1))
+            # Calculate loss.
+            y = make_target(y_train[idx, 0], label_to_ix)
+            loss = loss_function(y_hat, y)
+            # Complete backward propagation.
             loss.backward()
             optimizer.step()
     
         acc_count = 0
         with torch.no_grad():
             for idx in range(X_valid.shape[0]):
-                sentence = X_valid[idx]
-                grams, _ = ngram_creater(n, sentence, {})
-                bow_vec = sentence_torch(grams, word_to_idx, wtorch)
-                pred = model(bow_vec.view(1,-1))
-
-                y_pred = np.argmax(pred[0].detach().numpy())
+                # Complete forward propagation.
+                x = get_bag_of_ngrams(word_to_idx, X_valid[idx], n)
+                y_hat = model(x.view(1, -1))
+                # Increment the count of correct predictions.
+                y_pred = np.argmax(y_hat[0].detach().numpy())
                 if y_valid[idx, 0] == y_pred:
                     acc_count += 1
 
@@ -162,11 +319,11 @@ def run_bow_ngram(model, word_to_idx, wtorch, X_train, y_train,
     ypred1_count = 0
     with torch.no_grad():
         for idx in range(X_test.shape[0]):
-            sentence = X_test[idx]
-            grams, _ = ngram_creater(n, sentence, {})
-            bow_vec = sentence_torch(grams, word_to_idx, wtorch)
-            pred = best_model(bow_vec.view(1,-1))
-            y_pred = np.argmax(pred[0].detach().numpy())
+            # Complete forward propagation.
+            x = get_bag_of_ngrams(word_to_idx, X_test[idx], n)
+            y_hat = model(x.view(1, -1))
+            # Increment the count of correct predictions.
+            y_pred = np.argmax(y_hat[0].detach().numpy())
 
             if y_test[idx, 0] == y_pred:
                 acc_count += 1
