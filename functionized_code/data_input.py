@@ -49,21 +49,23 @@ def split_train_test(dt_size, train_valid_test_r):
         train_valid_test_r: tuple of ratios
     Return: indices for each subset
     '''
-    train_size = int(dt_size * train_valid_test_r[0] // 1)
-    valid_size = int(dt_size * train_valid_test_r[1] // 1)
-    test_size = int(dt_size - train_size - valid_size)
-    print("The size of train, valid and test data are", train_size, valid_size, test_size)
-    
-    full_indices = np.arange(0, dt_size, 1)
-    train_indices = np.random.permutation(full_indices)[:train_size]
-    
-    sub_indices = set(full_indices) - set(train_indices)
-    valid_indices = np.random.permutation(list(sub_indices))[:valid_size]
-    
-    sub_indicest = set(sub_indices) - set(valid_indices)
-    test_indices = np.array(list(sub_indicest))
-    
-    return train_indices, valid_indices, test_indices 
+    train, valid, testg = train_valid_test_r
+    # Ensure the proportions sum to one.
+    assert sum([train, valid, testg]) == 1
+    # Calculate the size of each set.
+    len_train = int(dt_size * train)
+    len_valid = int(dt_size * valid)
+    len_testg = dt_size - len_train - len_valid
+    # Report the size of each set.
+    message = 'The size of train, valid, and test sets are %d, %d, %d.'
+    print(message % (len_train, len_valid, len_testg))
+    # Proportionally allocate a random permutation of row indices.
+    idx = np.random.permutation(dt_size)
+    idx_train = idx[:len_train]
+    idx_valid = idx[len_train:len_train + len_valid]
+    idx_testg = idx[len_train + len_valid:]
+    # Return the indices of each set.
+    return idx_train, idx_valid, idx_testg
 
 
 def split_data(path, arr, train_valid_test_r):
