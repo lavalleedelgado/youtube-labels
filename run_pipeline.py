@@ -251,7 +251,6 @@ def dump_results(filename: str, results: Dict[str, Any]) -> None:
     # Ensure intermediate directories exist.
     directory = os.path.dirname(filename)
     if directory and not os.path.exists(directory):
-        print(directory)
         os.makedirs(directory)
     # Open the file at the given filename.
     with open(filename, mode='wb') as f:
