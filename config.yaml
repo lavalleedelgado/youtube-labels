@@ -1,0 +1,195 @@
+# Configuration file for run_pipeline.py
+
+# The below is an example of one fully-parameterized experiment document.
+# Data pipeline and modeling pipeline settings are under the 'data' and 'model'
+# keys, respectively. Note models take keyword parameters in their constructors.
+# 
+# ---
+# name: 'example_experiment'
+# data:
+#   col_labels: 'category_id'
+#   col_corpus: ['title', 'tags', 'description', 'caption']
+#   label_target: 'News & Politics'
+#   label_others: []
+#   splits: [0.4, 0.4, 0.2]
+#   ngram_size: 1
+#   vocab_size: 25000
+#   batch_size: 64
+#   cbow: False
+# models:
+#   WordEmbAvg_2linear:
+#     embedding_dim: 100
+#     hidden_dim: 50
+#     output_dim: 1
+#   SimpleRNN:
+#     embedding_dim: 100
+#     hidden_dim: 50
+#     output_dim: 1
+#   LSTM:
+#     embedding_dim: 100
+#     hidden_dim: 50
+#     output_dim: 1
+#     n_layers: 2
+#     bidirectional: True
+#     dropout: 0.5
+#   CNN:
+#     embedding_dim: 100
+#     n_filters: 100
+#     filter_sizes: [3, 4, 5]
+#     output_dim: 1
+#     dropout: 0.5
+# ---
+
+name: 'politics_entertainment'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Entertainment']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_howto'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Howto & Style']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_comedy'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Comedy']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_people'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['People & Blogs']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_science'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Science & Technology']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_music'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Music']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_education'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Education']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_film'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Film & Animation']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+name: 'politics_sports'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Sports']
+models:
+  WordEmbAvg_2linear:
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  CNN:
+    embedding_dim: 100
+    n_filters: 100
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
