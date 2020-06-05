@@ -1,0 +1,17 @@
+category_id	count	category_label
+24	1149	Entertainment
+26	515	Howto & Style
+23	444	Comedy
+22	354	People & Blogs
+25	302	News & Politics
+28	300	Science & Technology
+10	235	Music
+27	228	Education
+1	212	Film & Animation
+17	165	Sports
+15	67	Pets & Animals
+20	51	Gaming
+2	37	Autos & Vehicles
+19	34	Travel & Events
+29	9	Nonprofits & Activism
+43	4	Shows
