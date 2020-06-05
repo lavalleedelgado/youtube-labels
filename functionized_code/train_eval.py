@@ -1,3 +1,4 @@
+from typing import Tuple, List, Dict, Set, Any, Type
 import numpy as np
 import pandas as pd
 import random
@@ -132,26 +133,32 @@ class Training_module( ):
         return metrics
     
 
-    def train_model(self, train_iterator, dev_iterator):
-        """
-        Train the model for multiple epochs, and after each evaluate on the
-        development set.  Return the best performing model and updated performance
-        dictionary for each epoch
-        """
-        # Initialize a container for performance metrics.
+    def train_model(self, itr_train, itr_valid, decision_metric='accuracy', epochs=5):
+        '''
+        Train and evaluate the model on the training and validation datasets for
+        the number of epochs indicated. Choose the best model from the decision
+        metric indicated, e.g. loss, accuracy, precision, recall.
+        
+        Return the metrics collected for each epoch and the best model (dict).
+        '''
+        # Initialize containers for performance metrics.
         metrics = {}
-        accuracies = []
+        decision_metrics = []
         best_model = None
         # Train the model for each epoch.
-        for epoch in range(5):
+        for epoch in range(epochs):
             # Train the model with the training data.
-            model = self.train_epoch(train_iterator)
+            model = self.train_epoch(itr_train)
             # Evaluate the model with the validation data.
-            metrics[epoch] = self.evaluate(dev_iterator)
-            # Save this model if has the best accuracy seen so far.
-            accuracies.append(metrics[epoch]['accuracy'])
-            if metrics[epoch]['accuracy'] >= max(accuracies):
-                best_model = copy.copy(model.state_dict())
+            metrics[epoch] = self.evaluate(itr_valid)
+            # Save this model if has the best decision metric seen so far.
+            decision_metrics.append(metrics[epoch][decision_metric])
+            if decision_metric == 'loss':
+                if decision_metrics[-1] <= min(decision_metrics):
+                    best_model = copy.copy(model.state_dict())
+            else:
+                if decision_metrics[-1] >= max(decision_metrics):
+                    best_model = copy.copy(model.state_dict())
             # Report performance with this epoch.
             if not self.silent:
                 print_metrics('Epoch: %d' % epoch, metrics[epoch])

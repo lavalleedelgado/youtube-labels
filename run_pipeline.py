@@ -3,8 +3,10 @@ import os
 import argparse
 import yaml
 import pickle
+import re
 import numpy as np
 import pandas as pd
+import torch
 from torch import nn, optim
 from functionized_code import data_pipeline as dp, nnmodels, train_eval
 
@@ -54,12 +56,21 @@ LABEL_TO_IDX = {
 DEFAULT_DATA_PARAMS = {
     'col_labels': 'category_id',
     'col_corpus': ['title', 'tags', 'description', 'caption'],
+    'label_others': [],
     'splits': [0.4, 0.4, 0.2],
     'ngram_size': 1,
     'vocab_size': 25000,
     'batch_size': 64,
     'cbow': False,
 }
+
+# Identify the default metric that identifies the best model.
+DEFAULT_DECISION = 'loss'
+
+
+def reset_seed():
+    np.random.seed(0)
+    torch.manual_seed(0)
 
 
 def get_data():
@@ -152,18 +163,25 @@ def run_data_pipeline(
         labels, corpus, splits, ngram_size, vocab_size, batch_size, cbow, silent=True)
 
 
-def get_models(model_kwargs: Dict[str, dict]) -> Dict[str, Type[nn.Module]]:
+def get_models(model_kwargs: List[Dict[str, Any]]) -> Dict[str, Type[nn.Module]]:
     '''
     Initialize empty models by name from parameterizations.
 
-    model_kwargs (dict): mapping of model class names to parameterizations.
+    model_kwargs (list of dicts): mapping of model parameterizations.
 
     Return mapping of model names to model objects (dict).
     '''
-    return {
-        model: getattr(nnmodels, model)(**kwargs)
-        for model, kwargs in model_kwargs.items()
-    }
+    models = {}
+    # Consider each model parameterization.
+    for i, kwargs in enumerate(model_kwargs):
+        # Pop the model name from its keyword arguments.
+        model_class = kwargs.pop('model')
+        # Assign a unique name to this model.
+        name = 'model_%d_%s' % (i, model_class.lower())
+        # Initialize this model by class name.
+        models[name] = getattr(nnmodels, model_class)(**kwargs)
+    # Return the models.
+    return models
 
 
 def run_modeling_pipeline(
@@ -180,7 +198,7 @@ def run_modeling_pipeline(
     dictionary has the results of each validation epoch and testing evaluation:
 
     metrics = {
-        'model_name': {
+        'model_0_cnn': {
             0: {'loss': 0., 'accuracy': 0., 'precision': 0., 'recall': 0.},
             1: {'loss': 0., 'accuracy': 0., 'precision': 0., 'recall': 0.},
             'test': {'loss': 0., 'accuracy': 0., 'precision': 0., 'recall': 0.},
@@ -194,20 +212,21 @@ def run_modeling_pipeline(
 
     Return model metrics (dict).
     '''
+    # Get the decision metric.
+    decision_metric = model_kwargs.pop('decision_metric', DEFAULT_DECISION)
     # Update parameters with knowledge from the data.
     add = {'input_dim': len(word_to_idx), 'pad_idx': word_to_idx[dp.PAD]}
     for model in model_kwargs:
         model_kwargs[model].update(add)
     # Get the models per their parameterizations.
     models = get_models(model_kwargs)
-    # Train and evaluate the models on training and validation datasets.
+    # Train and evaluate each model.
     metrics = {}
     for name, model in models.items():
+        # Develop the model on the training and validation datasets.
         tm = train_eval.Training_module(model, silent=True)
-        metrics[name] = tm.train_model(itr_train, itr_valid)
-    # Evaluate the best models on the testing dataset.
-    for name, model in models.items():
-        tm = train_eval.Training_module(model, silent=True)
+        metrics[name] = tm.train_model(itr_train, itr_valid, decision_metric)
+        # Evaluate the best model on the testing dataset.
         tm.model.load_state_dict(metrics[name]['best'])
         metrics[name]['test'] = tm.evaluate(itr_testg)
     # Return the metrics dictionary.
@@ -221,7 +240,7 @@ def read_config(filename: str) -> List[Dict[str, Any]]:
 
     filename (str): location at which to read the configuration.
 
-    Return experiemnts (list of dicts).
+    Return experiments (list of dicts).
     '''
     experiments = []
     # Open the file at the given filename.
@@ -241,21 +260,25 @@ def read_config(filename: str) -> List[Dict[str, Any]]:
     return experiments
 
 
-def dump_results(filename: str, results: Dict[str, Any]) -> None:
+def dump_results(directory: str, results: Dict[str, Any]) -> None:
     '''
     Serialize the results and write to disk.
 
-    filename (str): location at which to write the results.
+    directory (str): location at which to write the results.
     results (dict): metrics and models from experiments.
     '''
     # Ensure intermediate directories exist.
-    directory = os.path.dirname(filename)
     if directory and not os.path.exists(directory):
         os.makedirs(directory)
-    # Open the file at the given filename.
-    with open(filename, mode='wb') as f:
-        # Serialize the results into the file.
-        pickle.dump(results, f)
+    # Dump each model in this experiment.
+    for name in results:
+        filename = directory + re.sub('\s+', '_', name)
+        # Save the model with the preferred Pytorch method.
+        best_model = results[name].pop('best')
+        torch.save(best_model, filename + '.pt')
+        # Save the metrics separately.
+        with open(filename, mode='wb') as f:
+            pickle.dump(results[name], f)
 
 
 def run(args):
@@ -265,13 +288,14 @@ def run(args):
     raw_data = get_data()
     # Run each experiment.
     for params in experiments:
-        name = params.pop('name')
+        # Reset seeds to attempt reproducibility.
+        reset_seed()
         # Run the data pipeline.
         vocab, batches = run_data_pipeline(raw_data, **params['data'])
         # Run the modeling pipeline.
         metrics = run_modeling_pipeline(*vocab, *batches, params['models'])
         # Write these metrics to file.
-        dump_results(args.out + '/' + name, metrics)
+        dump_results(params['out_directory'], metrics)
 
 
 if __name__ == '__main__':
@@ -283,9 +307,4 @@ if __name__ == '__main__':
         required=True,
         help='Identify the YAML file that specifies the experiments.',
         dest='config')
-    parser.add_argument(
-        '--out',
-        required=True,
-        help='Identify directory in which to pickle the model results.',
-        dest='out')
     run(parser.parse_args())

@@ -5,7 +5,7 @@
 # keys, respectively. Note models take keyword parameters in their constructors.
 # 
 # ---
-# name: 'example_experiment'
+# out_directory: 'example_experiment/'
 # data:
 #   col_labels: 'category_id'
 #   col_corpus: ['title', 'tags', 'description', 'caption']
@@ -17,7 +17,8 @@
 #   batch_size: 64
 #   cbow: False
 # models:
-#   WordEmbAvg_2linear:
+#   decision_metric: 'loss'
+#   - model: WordEmbAvg_2linear
 #     embedding_dim: 100
 #     hidden_dim: 50
 #     output_dim: 1
@@ -25,14 +26,14 @@
 #     embedding_dim: 100
 #     hidden_dim: 50
 #     output_dim: 1
-#   LSTM:
+#   - model: LSTM
 #     embedding_dim: 100
 #     hidden_dim: 50
 #     output_dim: 1
 #     n_layers: 2
 #     bidirectional: True
 #     dropout: 0.5
-#   CNN:
+#   - model: CNN
 #     embedding_dim: 100
 #     n_filters: 100
 #     filter_sizes: [3, 4, 5]
@@ -40,155 +41,430 @@
 #     dropout: 0.5
 # ---
 
-name: 'politics_entertainment'
+out_directory: 'models/unigrams/politics/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  ngram_size: 1
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
+---
+out_directory: 'models/unigrams/politics_entertainment/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Entertainment']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_howto'
+out_directory: 'models/unigrams/politics_howto/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Howto & Style']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_comedy'
+out_directory: 'models/unigrams/politics_comedy/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Comedy']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_people'
+out_directory: 'models/unigrams/politics_people/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['People & Blogs']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_science'
+out_directory: 'models/unigrams/politics_science/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Science & Technology']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_music'
+out_directory: 'models/unigrams/politics_music/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Music']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_education'
+out_directory: 'models/unigrams/politics_education/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Education']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_film'
+out_directory: 'models/unigrams/politics_film/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Film & Animation']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
 ---
-name: 'politics_sports'
+out_directory: 'models/unigrams/politics_sports/'
 data:
   col_corpus: ['title', 'tags', 'description', 'caption']
   label_target: 'News & Politics'
   label_others: ['Sports']
+  ngram_size: 1
 models:
-  WordEmbAvg_2linear:
+  - model: WordEmbAvg_2linear
     embedding_dim: 100
     hidden_dim: 50
     output_dim: 1
-  CNN:
+  - model: CNN
     embedding_dim: 100
-    n_filters: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+  - model: LSTM
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+    n_layers: 4
+    bidirectional: True
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_entertainment/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Entertainment']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_howto/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Howto & Style']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_comedy/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Comedy']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_people/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['People & Blogs']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_science/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Science & Technology']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_music/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Music']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_education/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Education']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_film/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Film & Animation']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
+    filter_sizes: [3, 4, 5]
+    output_dim: 1
+    dropout: 0.5
+---
+out_directory: 'models/bigrams/politics_sports/'
+data:
+  col_corpus: ['title', 'tags', 'description', 'caption']
+  label_target: 'News & Politics'
+  label_others: ['Sports']
+  ngram_size: 2
+models:
+  - model: WordEmbAvg_2linear
+    embedding_dim: 100
+    hidden_dim: 50
+    output_dim: 1
+  - model: CNN
+    embedding_dim: 100
+    n_filters: 200
     filter_sizes: [3, 4, 5]
     output_dim: 1
     dropout: 0.5

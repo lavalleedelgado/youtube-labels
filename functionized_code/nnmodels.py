@@ -93,7 +93,7 @@ class CNN(nn.Module):
         self.dropout = nn.Dropout(dropout)
         
     def forward(self, text):
-                
+        
         embedded = self.embedding(torch.transpose(text, 0, 1))
         embedded = embedded.unsqueeze(1)
         conved = [F.relu(conv(embedded)).squeeze(3) for conv in self.convs]
