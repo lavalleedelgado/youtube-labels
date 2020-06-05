@@ -56,7 +56,7 @@ class LSTM(nn.Module):
         super().__init__()
         
         self.embedding = nn.Embedding(input_dim, embedding_dim, padding_idx=pad_idx)
-        self.RNN = nn.LSTM(embedding_dim, 
+        self.LSTM = nn.LSTM(embedding_dim, 
                            hidden_dim, 
                            num_layers=n_layers, 
                            bidirectional=bidirectional, 
@@ -69,10 +69,11 @@ class LSTM(nn.Module):
         
         # Simplify the original version of LSTM implementation
         embedded = self.dropout(self.embedding(text))
-        output, (hidden, cell) = self.RNN(embedded)
+        output, (hidden, cell) = self.LSTM(embedded)
         hidden = self.dropout(torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1))
+        final_out = self.relu(hidden)
             
-        return self.linear(hidden)
+        return self.linear(final_out)
 
 
 class CNN(nn.Module):
@@ -128,7 +129,8 @@ class WordEmbAvg_2linear(nn.Module):
         return output
 
 
-# The following code is inspired by and modified from the PyTorch Tutorial of Robert Guthrie, part of the modification will be marked with comments.
+# The following code is inspired by and modified from the PyTorch Tutorial of Robert Guthrie, 
+# part of the modification will be marked with comments.
 #######################################################################################
 # Topic: DEEP LEARNING WITH PYTORCH
 # Author: Robert Guthrie
@@ -147,3 +149,41 @@ class BoWNN(nn.Module):
     def forward(self, bow_vec):
         
         return self.linear(bow_vec)
+
+
+# The following code is inspired by and modified from the GRU Tutorial from Gabriel Loye, 
+# part of the modification will be marked with comments.
+#####################################################################################
+# Topic: Gated Recurrent Unit (GRU) With PyTorch
+# Author: Gabriel Loye
+# Source: https://blog.floydhub.com/gru-with-pytorch/
+# Date: 2020
+######################################################################################
+
+class GRU(nn.Module):
+    '''
+    Gated Recurrent Unit Model with dropout setting
+    '''
+    def __init__(self, input_dim, embedding_dim, hidden_dim, output_dim,
+                 n_layers, dropout, bidirectional, pad_idx):
+
+        super().__init__()
+        self.embedding = nn.Embedding(input_dim, embedding_dim, padding_idx=pad_idx)
+        self.GRU = nn.GRU(embedding_dim, 
+                          hidden_dim, 
+                          n_layers, 
+                          bidirectional=bidirectional, 
+                          dropout=dropout)
+        self.linear = nn.Linear(hidden_dim * 2, output_dim)
+        self.dropout = nn.Dropout(dropout)
+        self.relu = nn.ReLU()
+        
+    def forward(self, text):
+
+        # Modify the original version of GRU implementation
+        embedded = self.dropout(self.embedding(text))
+        output, hidden = self.GRU(embedded)
+        hidden = self.dropout(torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1))
+        final_out = self.relu(hidden)
+            
+        return self.linear(final_out)
