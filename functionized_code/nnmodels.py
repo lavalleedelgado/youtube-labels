@@ -38,6 +38,7 @@ class SimpleRNN(nn.Module):
     def forward(self, text):
         
         #print("simpleRNN text:, ", text.size())
+        #self.GRU.flatten_parameters()
         emb = self.embedding(text)
         ot1, hidden = self.RNN(emb)
         ot2 = self.relu(hidden.squeeze(0))
@@ -68,10 +69,11 @@ class LSTM(nn.Module):
     def forward(self, text):
         
         # Simplify the original version of LSTM implementation
+        #self.LSTM.flatten_parameters()
         embedded = self.dropout(self.embedding(text))
         output, (hidden, cell) = self.LSTM(embedded)
         hidden = self.dropout(torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1))
-        final_out = self.relu(hidden)
+        final_out = hidden #self.relu(hidden)
             
         return self.linear(final_out)
 
@@ -94,7 +96,7 @@ class CNN(nn.Module):
         self.dropout = nn.Dropout(dropout)
         
     def forward(self, text):
-        
+                
         embedded = self.embedding(torch.transpose(text, 0, 1))
         embedded = embedded.unsqueeze(1)
         conved = [F.relu(conv(embedded)).squeeze(3) for conv in self.convs]
@@ -165,7 +167,7 @@ class GRU(nn.Module):
     Gated Recurrent Unit Model with dropout setting
     '''
     def __init__(self, input_dim, embedding_dim, hidden_dim, output_dim,
-                 n_layers, dropout, bidirectional, pad_idx):
+                 n_layers, bidirectional, dropout, pad_idx):
 
         super().__init__()
         self.embedding = nn.Embedding(input_dim, embedding_dim, padding_idx=pad_idx)
@@ -181,9 +183,10 @@ class GRU(nn.Module):
     def forward(self, text):
 
         # Modify the original version of GRU implementation
+        #self.GRU.flatten_parameters()
         embedded = self.dropout(self.embedding(text))
         output, hidden = self.GRU(embedded)
         hidden = self.dropout(torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1))
-        final_out = self.relu(hidden)
+        final_out = hidden #self.relu(hidden)
             
         return self.linear(final_out)
