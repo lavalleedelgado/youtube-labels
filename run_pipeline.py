@@ -2,6 +2,7 @@ from typing import Tuple, List, Dict, Set, Any, Type
 import os
 import argparse
 import yaml
+import csv
 import pickle
 import re
 import numpy as np
@@ -14,7 +15,6 @@ from functionized_code import data_pipeline as dp, nnmodels, train_eval
 # Identify paths to the data.
 PATH_VIDEOS = 'data/USvideos.csv'
 PATH_CAPTIONS = 'data/transcripts.txt'
-
 
 # Identify labels in the data.
 LABEL_TO_IDX = {
@@ -51,11 +51,11 @@ LABEL_TO_IDX = {
     'Trailers': 44
 }
 
-
 # Identify default data pipeline parameters for when none are given.
 DEFAULT_DATA_PARAMS = {
     'col_labels': 'category_id',
     'col_corpus': ['title', 'tags', 'description', 'caption'],
+    'label_target': 'News & Politics',
     'label_others': [],
     'splits': [0.4, 0.4, 0.2],
     'ngram_size': 1,
@@ -66,6 +66,17 @@ DEFAULT_DATA_PARAMS = {
 
 # Identify the default metric that identifies the best model.
 DEFAULT_DECISION = 'loss'
+
+# Identify the default directory to save models and the results file.
+DEFAULT_DIRECTORY = 'models'
+DEFAULT_RESULTS_FILENAME = 'results.txt'
+
+# Identify the column names of the metrics results file.
+DEFAULT_RESULTS_COLS = [
+    'label_target', 'label_others', 'model', 'epoch', 'loss', 'accuracy',
+    'precision', 'recall', 'model_path', 'model_init', 'col_labels',
+    'col_corpus', 'splits', 'ngram_size', 'vocab_size', 'batch_size', 'cbow'
+]
 
 
 def reset_seed():
@@ -190,7 +201,8 @@ def run_modeling_pipeline(
     itr_train: List[dp.TorchTextLike],
     itr_valid: List[dp.TorchTextLike],
     itr_testg: List[dp.TorchTextLike],
-    model_kwargs: Dict[str, dict]
+    decision_metric: str,
+    model_kwargs: List[Dict[str, Any]]
 ) -> Dict[str, dict]:
     '''
     Run the complete modeling pipeline, training and evaluating language models.
@@ -208,27 +220,30 @@ def run_modeling_pipeline(
 
     word_to_idx, idx_to_word (dict): mappings of words the vocabulary.
     itr_train, itr_valid, itr_testg (list of TorchTextLike): dataset batches.
+    decision_metric (str): metric by which to distinguish performant models.
     model_kwargs (dict): mappings of model classes to parameterizations.
 
     Return model metrics (dict).
     '''
-    # Get the decision metric.
-    decision_metric = model_kwargs.pop('decision_metric', DEFAULT_DECISION)
-    # Update parameters with knowledge from the data.
+    # Update parameters of each model with knowledge from the data.
     add = {'input_dim': len(word_to_idx), 'pad_idx': word_to_idx[dp.PAD]}
-    for model in model_kwargs:
-        model_kwargs[model].update(add)
+    for idx in range(len(model_kwargs)):
+        model_kwargs[idx].update(add)
     # Get the models per their parameterizations.
     models = get_models(model_kwargs)
     # Train and evaluate each model.
     metrics = {}
     for name, model in models.items():
+        # Reset seeds to attempt reproducibility.
+        reset_seed()
         # Develop the model on the training and validation datasets.
         tm = train_eval.Training_module(model, silent=True)
         metrics[name] = tm.train_model(itr_train, itr_valid, decision_metric)
         # Evaluate the best model on the testing dataset.
         tm.model.load_state_dict(metrics[name]['best'])
         metrics[name]['test'] = tm.evaluate(itr_testg)
+        # Save the initialization parameters of this model.
+        metrics[name]['init'] = str(dict(model._modules)).replace('\n', ' ')
     # Return the metrics dictionary.
     return metrics
 
@@ -260,25 +275,55 @@ def read_config(filename: str) -> List[Dict[str, Any]]:
     return experiments
 
 
-def dump_results(directory: str, results: Dict[str, Any]) -> None:
+def write_results(
+    results_filename: str,
+    models_directory: str,
+    data_params: Dict[str, Any],
+    experiment: Dict[str, Any],
+    results_cols: List[str] = DEFAULT_RESULTS_COLS
+) -> None:
     '''
-    Serialize the results and write to disk.
+    Write the results of an experiment, e.g. models, metrics, and parameters of
+    each, to disk.
 
-    directory (str): location at which to write the results.
-    results (dict): metrics and models from experiments.
-    '''
+    results_filename (str): path to the results file.
+    models_directory (str): location at which to write the models.
+    data_params (dict): parameters that specify the data.
+    experiment (dict): mapping of models to metrics and best model parameters.
+    results_cols (list): column names of the results file.
+    ''' 
+    # Check whether the results file exists for whether to write the header.
+    header = True
+    if os.path.exists(results_filename):
+        header = False
     # Ensure intermediate directories exist.
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory)
-    # Dump each model in this experiment.
-    for name in results:
-        filename = directory + re.sub('\s+', '_', name)
-        # Save the model with the preferred Pytorch method.
-        best_model = results[name].pop('best')
-        torch.save(best_model, filename + '.pt')
-        # Save the metrics separately.
-        with open(filename, mode='wb') as f:
-            pickle.dump(results[name], f)
+    if models_directory and not os.path.exists(models_directory):
+        os.makedirs(models_directory)
+    # Write the results of each model in the experiment.
+    for name, results in experiment.items():
+        # Write this model to disk with the preferred Pytorch method.
+        model_filename = models_directory + re.sub('\s+', '_', name) + '.pt'
+        torch.save(results.pop('best'), model_filename)
+        # Get the model initialization parameters.
+        init = results.pop('init')
+        # Write the results of this model to disk.
+        with open(results_filename, mode='a') as f:
+            # Initialize a dictionary writer to interact with the file.
+            writer = csv.DictWriter(f, fieldnames=results_cols, delimiter='\t')
+            # Write the header if required.
+            if header:
+                writer.writeheader()
+            # Write the results for each epoch run for this model.
+            for epoch in results:
+                # Collect the values for this row.
+                row = dict(**results[epoch], **data_params, **{
+                    'epoch': epoch,
+                    'model': name,
+                    'model_path': model_filename,
+                    'model_init': init
+                })
+                # Write the results of this epoch.
+                writer.writerow(row)
 
 
 def run(args):
@@ -286,16 +331,18 @@ def run(args):
     experiments = read_config(args.config)
     # Read the data.
     raw_data = get_data()
+    # Identify the path to the results file.
+    results_filename = args.out + '/' + DEFAULT_RESULTS_FILENAME
     # Run each experiment.
     for params in experiments:
-        # Reset seeds to attempt reproducibility.
-        reset_seed()
         # Run the data pipeline.
         vocab, batches = run_data_pipeline(raw_data, **params['data'])
         # Run the modeling pipeline.
-        metrics = run_modeling_pipeline(*vocab, *batches, params['models'])
-        # Write these metrics to file.
-        dump_results(params['out_directory'], metrics)
+        decision = params.pop('decision_metric', DEFAULT_DECISION)
+        results = run_modeling_pipeline(*vocab, *batches, decision, params['models'])
+        # Write the results of this experiment to file.
+        models_directory = args.out + '/' + params.pop('out_directory', '')
+        write_results(results_filename, models_directory, params['data'], results)
 
 
 if __name__ == '__main__':
@@ -307,4 +354,10 @@ if __name__ == '__main__':
         required=True,
         help='Identify the YAML file that specifies the experiments.',
         dest='config')
+    parser.add_argument(
+        '--out',
+        required=True,
+        default=DEFAULT_DIRECTORY,
+        help='Identify the location at which to save model and summaries.',
+        dest='out')
     run(parser.parse_args())
