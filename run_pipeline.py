@@ -84,12 +84,26 @@ def reset_seed():
     torch.manual_seed(0)
 
 
-def get_data():
-    return pd.merge(
-        pd.read_csv(PATH_VIDEOS),
-        pd.read_table(PATH_CAPTIONS, names=['video_id', 'caption']),
-        on='video_id'
-    ).drop_duplicates('video_id', 'first', ignore_index=True)
+def get_data(
+    videos_filename: str = PATH_VIDEOS,
+    captions_filename: str = PATH_CAPTIONS,
+    captions: bool = False
+) -> pd.DataFrame:
+    '''
+    Read the YouTube video data from file, optionally joining on captions data.
+
+    videos_filename (str): path to the videos data.
+    captions_filename (str): path to the captions data.
+    captions (bool): whether to join on captions data.
+
+    Return data (pd.DataFrame)
+    '''
+    data = pd.read_csv(videos_filename)
+    if captions:
+        data = pd.merge(data,
+        pd.read_table(captions_filename, names=['video_id', 'caption']),
+        on='video_id')
+    return data.drop_duplicates('video_id', 'first', ignore_index=True)
 
 
 def get_column_indices(
@@ -161,6 +175,8 @@ def run_data_pipeline(
 
     Return vocab (tuple of dicts), batches (list of lists of TorchTextLike).
     '''
+    # Reset seeds to attempt reproducibility.
+    reset_seed()
     # Identify the indices of the labels and text features.
     idx_labels, idx_corpus = get_column_indices(data, col_labels, col_corpus)
     # Identify the values of the target label and other labels to keep.
@@ -329,12 +345,13 @@ def write_results(
 def run(args):
     # Read the config file for experiments to run.
     experiments = read_config(args.config)
-    # Read the data.
-    raw_data = get_data()
     # Identify the path to the results file.
     results_filename = args.out + '/' + DEFAULT_RESULTS_FILENAME
     # Run each experiment.
     for params in experiments:
+        # Read the data from file.
+        captions = True if 'caption' in params['data']['col_corpus'] else False
+        raw_data = get_data(captions=captions)
         # Run the data pipeline.
         vocab, batches = run_data_pipeline(raw_data, **params['data'])
         # Run the modeling pipeline.
