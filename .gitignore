@@ -3,3 +3,10 @@ research/
 __pycache__/
 .ipynb_checkpoints/
 *.pt
+*aux
+*bbl
+*blg
+*fdb_latexmk
+*fls
+*log
+*gz
