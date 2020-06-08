@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch import nn, optim
-from functionized_code import data_pipeline as dp, nnmodels, train_eval_old
+from functionized_code import data_pipeline as dp, nnmodels, train_eval_old as train_eval
 
 
 # Identify paths to the data.
