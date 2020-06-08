@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from torchtext import data
 import torch.utils.data as d
 import tokenization_dim_reduction as tdr
+import csv
 
 FEATURE_GROUPS = {"title": (tdr.cols_t1, -1, [0]), "tag": (tdr.cols_t2, 0, []), "title_tag": (tdr.cols_t3, 1, [0]), "full": (tdr.cols_t4, 1, [0,2])}
 
@@ -49,23 +50,21 @@ def split_train_test(dt_size, train_valid_test_r):
         train_valid_test_r: tuple of ratios
     Return: indices for each subset
     '''
-    train, valid, testg = train_valid_test_r
-    # Ensure the proportions sum to one.
-    assert sum([train, valid, testg]) == 1
-    # Calculate the size of each set.
-    len_train = int(dt_size * train)
-    len_valid = int(dt_size * valid)
-    len_testg = dt_size - len_train - len_valid
-    # Report the size of each set.
-    message = 'The size of train, valid, and test sets are %d, %d, %d.'
-    print(message % (len_train, len_valid, len_testg))
-    # Proportionally allocate a random permutation of row indices.
-    idx = np.random.permutation(dt_size)
-    idx_train = idx[:len_train]
-    idx_valid = idx[len_train:len_train + len_valid]
-    idx_testg = idx[len_train + len_valid:]
-    # Return the indices of each set.
-    return idx_train, idx_valid, idx_testg
+    train_size = int(dt_size * train_valid_test_r[0] // 1)
+    valid_size = int(dt_size * train_valid_test_r[1] // 1)
+    test_size = int(dt_size - train_size - valid_size)
+    print("The size of train, valid and test data are", train_size, valid_size, test_size)
+    
+    full_indices = np.arange(0, dt_size, 1)
+    train_indices = np.random.permutation(full_indices)[:train_size]
+    
+    sub_indices = set(full_indices) - set(train_indices)
+    valid_indices = np.random.permutation(list(sub_indices))[:valid_size]
+    
+    sub_indicest = set(sub_indices) - set(valid_indices)
+    test_indices = np.array(list(sub_indicest))
+    
+    return train_indices, valid_indices, test_indices 
 
 
 def split_data(path, arr, train_valid_test_r):
@@ -191,3 +190,33 @@ def split_reduced_data(path, arr, y, k=500, train_valid_test_r=(0.4, 0.4, 0.2)):
     return (red_train, y[train_indices], red_valid, y[valid_indices], 
             red_test, y[test_indices])
 
+
+def import_captions(data_dir, f_dir):
+    '''
+    This function is used to import the caption data
+    Inputs:
+        data_dir: the directory of the input caption data
+        f_dir: the directory of the input title/tag data
+    Return: caption dataframe
+    '''
+    csv.field_size_limit(1000000000)
+    txt_list = []
+    with open(data_dir, "r", encoding="utf-8") as f:
+        csv_reader = csv.reader(f, delimiter='\n')
+        for row in csv_reader:
+            txt_list.append(', '.join(row))
+            
+    video_id = []
+    txt_content = []
+    for txt_row in txt_list:
+        video_id.append(txt_row[:11])
+        txt_content.append(txt_row[12:])
+    
+    fdata = pd.read_csv(f_dir)
+    new_arr = fdata.drop_duplicates("video_id", "first")[["video_id", "category_id"]]
+    new_TEXT = txt_content
+    new_id = video_id
+    new_idtxt = pd.DataFrame(list(zip(new_id, new_TEXT)), columns=["video_id", "text"])
+    new_pd = pd.merge(new_arr, new_idtxt, left_on="video_id", right_on="video_id")[["text", "category_id"]]
+    
+    return new_pd

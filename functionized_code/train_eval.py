@@ -1,4 +1,3 @@
-from typing import Tuple, List, Dict, Set, Any, Type
 import numpy as np
 import pandas as pd
 import random
@@ -64,18 +63,12 @@ def binary_recall(preds, y):
 ####################################################################################
 class Training_module( ):
 
-    # Identify the device on which to put everything.
-    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-
-    def __init__(self, model, device=DEVICE, silent=False):
+    def __init__(self, model, device):
         
-        self.model = model.to(device=device)
-        self.loss_fn = (nn.BCEWithLogitsLoss()).to(device=device)
+        self.model = model
+        self.loss_fn = (nn.BCEWithLogitsLoss()).to(device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.01)
-        self.silent = silent
     
-
     def train_epoch(self, iterator):
         '''
         Train the model for one epoch. For this repeat the following, 
@@ -86,91 +79,82 @@ class Training_module( ):
         4. Compute gradients using a backward pass.
         5. Execute one step of the optimizer to update the model paramters.
         '''
-        # Set the model to training mode.
-        self.model.train()
-        # Consider each batch of examples in the training data.
+        epoch_loss = 0
+        epoch_acc = 0
+    
         for batch in iterator:
-            # Clear the gradients from any previous optimization.
+
             self.optimizer.zero_grad()
-            # Forward pass: get predictions from the model.
+            
             predictions = self.model(batch.text).squeeze(1)
             loss = self.loss_fn(predictions, batch.label)
-            # Backward pass: compute gradients and update model parameters.
+            accuracy = binary_accuracy(predictions, batch.label)
+        
             loss.backward()
             self.optimizer.step()
-        # Return the trained model.
-        return self.model
+            epoch_loss += loss.item()
+            epoch_acc += accuracy.item()
+        
+        return epoch_loss / len(iterator), epoch_acc / len(iterator)
     
+    def train_model(self, train_iterator, dev_iterator, models_perf, key, epoch_num=5):
+        """
+        Train the model for multiple epochs, and after each evaluate on the
+        development set.  Return the best performing model and updated performance
+        dictionary for each epoch
+        """  
+        dev_accs = [0.]
+        for epoch in range(epoch_num):
+            self.train_epoch(train_iterator)
+            dev_acc = self.evaluate(dev_iterator)
 
+            print(f"Epoch {epoch}: Dev Accuracy: {dev_acc[1]} Dev Loss:{dev_acc[0]}")
+            models_perf[key]["valid_epoch_acc " + str(epoch)] = dev_acc[1]
+
+            if dev_acc[1] > max(dev_accs):
+                best_model = copy.deepcopy(self)
+            dev_accs.append(dev_acc[1])
+
+        return best_model.model, models_perf
+                
     def evaluate(self, iterator):
         '''
         Evaluate the performance of the model on the given examples.
         '''
-        # Initialize aggregators for each metric.
-        loss, accuracy, precision, recall = 0, 0, 0, 0
-        # Set the model to evaluation mode.
-        self.model.eval()
-        # Disable gradient calculation.
-        with torch.no_grad():
-            # Consider each batch of examples in the validation data.
-            for batch in iterator:
-                # Get predictions from the model.
-                predictions = self.model(batch.text).squeeze(1)
-                # Increment each metric.
-                loss += self.loss_fn(predictions, batch.label).item()
-                accuracy += binary_accuracy(predictions, batch.label).item()
-                precision += binary_precision(predictions, batch.label).item()
-                recall += binary_recall(predictions, batch.label).item()
-        # Collect the average of each metric. 
-        n = len(iterator)
-        metrics = {
-            'loss': loss / n,
-            'accuracy': accuracy / n,
-            'precision': precision / n,
-            'recall': recall / n
-        }
-        # Return the metrics.
-        return metrics
+        epoch_loss = 0
+        epoch_acc = 0
+        epoch_prec = 0
+        epoch_rec = 0
     
+        with torch.no_grad():
+    
+            for batch in iterator:
 
-    def train_model(self, itr_train, itr_valid, decision_metric='accuracy', epochs=5):
-        '''
-        Train and evaluate the model on the training and validation datasets for
-        the number of epochs indicated. Choose the best model from the decision
-        metric indicated, e.g. loss, accuracy, precision, recall.
+                predictions = self.model(batch.text).squeeze(1)
+                loss = self.loss_fn(predictions, batch.label)
+                acc = binary_accuracy(predictions, batch.label)
+                precision = binary_precision(predictions, batch.label)
+                recall = binary_recall(predictions, batch.label)
         
-        Return the metrics collected for each epoch and the best model (dict).
-        '''
-        # Initialize containers for performance metrics.
-        metrics = {}
-        decision_metrics = []
-        best_model = None
-        # Train the model for each epoch.
-        for epoch in range(epochs):
-            # Train the model with the training data.
-            model = self.train_epoch(itr_train)
-            # Evaluate the model with the validation data.
-            metrics[epoch] = self.evaluate(itr_valid)
-            # Save this model if has the best decision metric seen so far.
-            decision_metrics.append(metrics[epoch][decision_metric])
-            if decision_metric == 'loss':
-                if decision_metrics[-1] <= min(decision_metrics):
-                    best_model = copy.copy(model.state_dict())
-            else:
-                if decision_metrics[-1] >= max(decision_metrics):
-                    best_model = copy.copy(model.state_dict())
-            # Report performance with this epoch.
-            if not self.silent:
-                print_metrics('Epoch: %d' % epoch, metrics[epoch])
-        # Pack the best model in with the metrics.
-        metrics['best'] = best_model
-        # Return the performance metrics.
-        return metrics
+                epoch_loss += loss.item()
+                epoch_acc += acc.item()
+                epoch_prec += precision.item()
+                epoch_rec += recall.item()
+
+        return epoch_loss / len(iterator), epoch_acc / len(iterator), \
+               epoch_prec / len(iterator), epoch_rec / len(iterator)
+
+
+def model_selection(model_dict, model_txt="avg_embedding"):
+    '''
+    Helper function for model selection
+    '''
+    return model_dict[model_txt]
 
 
 # Comparing the performance of different models, the original 
 # version of the CAPP 30255 assignment
-def compare_models(model_dict, device, train_iterator, valid_iterator, test_iterator):
+def compare_models(model_dict, device, train_iterator, valid_iterator, test_iterator, epoch_num=5):
     '''
     The function presents and compare the performances of
     different neural network models and store the best
@@ -182,50 +166,53 @@ def compare_models(model_dict, device, train_iterator, valid_iterator, test_iter
         train_iterator, valid_iterator, test_iterator: iterators with batches
     Return: dictionary of best models of each model type
     '''
-    best_models = {}
     models_perf = {}
-    for name, model in model_dict.items():
-        # Report the model on deck.
-        print("Currently training the model: ", name)
-        # Train this model on the training and validation sets.
+    best_models = {}
+    for key, value in model_dict.items():
+        print("currently training the model: ", key)
+        models_perf[key] = {}
+
+        model = model_selection(model_dict, key)
+        model = model.to(device)
         tm = Training_module(model, device)
-        metrics = tm.train_model(train_iterator, valid_iterator)
-        # Load and evaluate the best model on the testing set.
-        tm.model.load_state_dict(metrics['best'])
-        metrics['test'] = tm.evaluate(test_iterator)
-        print_metrics('Testing', metrics['test'])
-        # Update the collections of models and metrics.
-        best_models[name] = copy.deepcopy(tm.model)
-        models_perf[name] = metrics
-    # Return the best model and the model metrics.
+        best_model, models_perf = tm.train_model(train_iterator, valid_iterator, models_perf, key, epoch_num)
+        best_models[key] = best_model
+        
+        tm.model = best_model
+        test_loss, test_acc, test_prec, test_rec = tm.evaluate(test_iterator)
+        print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc*100:.2f}%')
+        print(f'Test Prec: {test_prec*100:.3f}% | Test Rec: {test_rec*100:.3f}%')
+
+        models_perf[key]["best_test_acc"] = test_acc
+        models_perf[key]["best_test_precision"] = test_prec
+        models_perf[key]["best_test_recall"] = test_rec
+        
     return best_models, models_perf
-
-
-def print_metrics(prefix: str, m: dict) -> None:
-    print(
-        '%s | Loss: %6.4f | Acc: %6.4f | Prec: %6.4f | Rec: %6.4f'
-        % (prefix, m['loss'], m['accuracy'], m['precision'], m['recall'])
-    )
 
 
 # Searching for phrases with highest norm values, modify the original 
 # version of the CAPP 30255 assignment
-def get_effective_norms(model, idx_to_word, k):
+def get_effective_norms(best_models, TEXT, selected_mkey="avg_embedding"):
     '''
-    Report the top k most and least effective words in classification.
-
-    model (torch.nn.Module): model from which to get word embeddings.
-    idx_to_word (dict): mapping of indices to words in the vocabulary.
-    k (int): number of words to report.
-
+    The model presents 10 most effective and 10 less effective
+    phrases used in the classification
+    Inputs: 
+        best_models: dictionary of best model of each model type
+        TEXT: TEXT object used in vocabulary building
+        selected_mkey: selected model type
     '''
-    # Calculate the norm of the word vectors in the embeddings.
-    word_norms = torch.norm(model.embedding.weight, p=2, dim=1)
-    # Get the vocabulary indices of the top-k and bottom-k words.
-    top_indices = word_norms.topk(k).indices
-    bottom_indices = word_norms.topk(k, largest=False).indices
-    # Map these indices to words in the vocabulary.
-    strong_words = [idx_to_word[idx.item()] for idx in top_indices]
-    weak_words = [idx_to_word[idx.item()] for idx in bottom_indices]
-    print("More effective words: ", strong_words)
-    print("Less effective words: ", weak_words)
+    best_model = best_models[selected_mkey]
+    strong_words = []
+    weak_words = []
+    emb_weight = best_model.embedding.weight.data
+    top_indices = torch.norm(emb_weight, p=2, dim=1).detach().topk(10).indices
+    bottom_indices = torch.norm(emb_weight, p=2, dim=1).detach().topk(10, largest=False).indices
+
+    for idx in top_indices:
+        strong_words.append(TEXT.vocab.itos[idx])
+    
+    for idx in bottom_indices:
+        weak_words.append(TEXT.vocab.itos[idx])
+    
+    print("most effective words: ", strong_words)
+    print("less effective words: ", weak_words)
