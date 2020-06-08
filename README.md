@@ -20,7 +20,6 @@ We attempt to recreate the decision a YouTube user makes selecting a category fo
 The program `run_pipeline.py` executes the data and modeling pipelines. The `--config` flag identifies the location of the `YAML` file that parameterizes the pipeline. The `--out` flag identifies the directory in which to save the results of the models and the model itself.
 ```
 $ python3 run_pipeline.py --config models_w_captions/unigrams.yaml --out models_w_captions
-
 ```
 The `YAML` file specifies the columns that correspond to the labels and corpus in the data for the purposes of a particular experiment. It gives flexibility to specify which text features to include in the corpus; for example, we use this to run our models with and without the caption data. Similarly, the file sets which categories in the label to include and on which to binarize. It also sets the n-gram, vocabulary, and batch sizes.
 
