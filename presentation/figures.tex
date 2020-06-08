@@ -73,28 +73,84 @@
   \caption*{Videos by category}
   \begin{tabular}{lrr@{\%}p{1em}rr@{\%}}
     \toprule
-    Category & \multicolumn{2}{l}{All videos} & & \multicolumn{2}{l}{With captions} \\
+    Category & \multicolumn{2}{l}{\enspace With captions \enspace} & & \multicolumn{2}{l}{Without captions} \\
     \midrule
-    Entertainment           & 1619  & 25  & & 1149  & 28  \\
-    How-to \& Style         & 595   & 9   & & 515   & 13  \\
-    Comedy                  & 547   & 9   & & 444   & 11  \\
-    People \& Blogs         & 498   & 8   & & 354   & 9   \\
-    News \& Politics        & 505   & 8   & & 302   & 7   \\
-    Science \& Technology   & 380   & 6   & & 300   & 7   \\
-    Music                   & 799   & 13  & & 235   & 6   \\
-    Education               & 250   & 4   & & 228   & 6   \\ 
-    Film \& Animation       & 318   & 5   & & 212   & 5   \\
-    Sports                  & 451   & 7   & & 165   & 4   \\
-    Pets \& Animals         & 138   & 2   & & 67    & 2   \\
-    Gaming                  & 103   & 2   & & 51    & 1   \\
-    Autos \& Vehicles       & 70    & 1   & & 37    & 1   \\
-    Travel \& Events        & 60    & 1   & & 34    & 1   \\
-    Nonprofits \& Activism  & 14    & 0   & & 9     & 0   \\
-    Shows                   & 4     & 0   & & 4     & 0   \\
+    Entertainment           & 1149  & 28  & & 1619  & 25 \\
+    How-to \& Style         & 515   & 13  & & 595   & 9  \\
+    Comedy                  & 444   & 11  & & 547   & 9  \\
+    People \& Blogs         & 354   & 9   & & 498   & 8  \\
+    News \& Politics        & 302   & 7   & & 505   & 8  \\
+    Science \& Technology   & 300   & 7   & & 380   & 6  \\
+    Music                   & 235   & 6   & & 799   & 13 \\
+    Education               & 228   & 6   & & 250   & 4  \\ 
+    Film \& Animation       & 212   & 5   & & 318   & 5  \\
+    Sports                  & 165   & 4   & & 451   & 7  \\
+    Pets \& Animals         & 67    & 2   & & 138   & 2  \\
+    Gaming                  & 51    & 1   & & 103   & 2  \\
+    Autos \& Vehicles       & 37    & 1   & & 70    & 1  \\
+    Travel \& Events        & 34    & 1   & & 60    & 1  \\
+    Nonprofits \& Activism  & 9     & 0   & & 14    & 0  \\
+    Shows                   & 4     & 0   & & 4     & 0  \\
     \bottomrule
     Sum                     & 6351  & 100 & & 4106  & 100 \\
   \end{tabular}
 \end{table}
+
+\begin{table}[H]
+  \centering
+  \caption*{Vocabulary by category}
+  \begin{tabular}{lrr@{\%}p{1em}rr@{\%}}
+    \toprule
+    & \multicolumn{2}{c}{\textsc{\enspace with captions \enspace}} & & \multicolumn{2}{c}{\textsc{without captions}} \\
+    \cmidrule{2-3} \cmidrule{5-6}
+    News \& Politics vs: & Size & \multicolumn{1}{r}{Shared} & & Size & \multicolumn{1}{r}{Shared} \\ 
+    \midrule
+    Self                    & 22650 & 100 & & 8278  & 100 \\ 
+    \hline
+    Entertainment           & 25002 & 50  & & 20509 & 55  \\
+    How-to \& Style         & 25002 & 44  & & 12119 & 37  \\
+    Comedy                  & 20800 & 41  & & 8517  & 35  \\
+    People \& Blogs         & 23392 & 45  & & 10187 & 38  \\
+    Science \& Technology   & 21897 & 43  & & 8579  & 35  \\
+    Music                   & 12385 & 28  & & 11270 & 34  \\
+    Education               & 20491 & 42  & & 7853  & 31  \\
+    Film \& Animation       & 18525 & 40  & & 8056  & 32  \\
+    Sports                  & 12707 & 31  & & 5951  & 27  \\
+    \hline
+    Pets \& Animals         & 6781  & 19  & & 3512  & 19  \\
+    Gaming                  & 8685  & 24  & & 2528  & 14  \\
+    Autos \& Vehicles       & 5363  & 16  & & 2246  & 13  \\
+    Travel \& Events        & 5786  & 15  & & 2230  & 13  \\
+    Nonprofits \& Activism  & 3837  & 13  & & 908   & 6   \\
+    Shows                   & 950   & 3   & & 221   & 2   \\
+    \hline
+    Corpus                  & 25002 & 53  & & 25002 & 62  \\
+    \bottomrule
+    \multicolumn{6}{l}{\small\textit{Note: vocabulary capped at 25,000 most frequent words, excluding stop}} \\
+    \multicolumn{6}{l}{\small\textit{words, plus tokens for unknown words and padding.}}
+  \end{tabular}
+\end{table}
+
+\begin{Verbatim}
+  {
+    video_id: 1ZAPwfrtAFY,
+
+    title: 'The Trump Presidency: Last Week Tonight with John Oliver (HBO)',
+
+    category_id: 24,  // Entertainment
+
+    tags: 'last week tonight trump presidency|"last week tonight donald trump"
+      "john oliver trump"|"donald trump"',
+
+    description: "One year after the presidential election, John Oliver
+    discusses what we've learned so far and enlists our catheter cowboy to
+    teach Donald Trump what he hasn't.\\n\\nConnect with Last Week Tonight…",
+
+    caption: 'The presidency of Donald Trump. The man voted "Least Edible" by
+    Cannibal Magazine -six years in a row. -(AUDIENCE LAUGHING) -A-- And I know,
+    I honestly know that the prospect of talking about Trump yet again feels…'
+  }
+\end{Verbatim}
 
 \section{Models}
 
