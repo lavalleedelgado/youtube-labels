@@ -18,7 +18,7 @@ We attempt to recreate the decision a YouTube user makes selecting a category fo
 
 ## Structure
 - `data/`: video and category data by country as well as caption data for videos in the US data.
-- `get_captions.py`: script that scrapes the caption data from the video page on the YouTube website (47 lines, Patrick).
+- `get_captions.py`: scrape the caption data from the video page on the YouTube website (47 lines, Patrick).
 - `exploration.ipynb`: notebook that collects the counts of videos by category and the intersections of their vocabularies (105 lines, Patrick).
 - `models_w_captions/`: results of models on data with captions.
 - `models_wo_captions/`: results of models on data without captions.
