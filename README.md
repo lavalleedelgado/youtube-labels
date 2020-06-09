@@ -2,6 +2,10 @@
 Ta-Yun Yang & Patrick Lavallee Delgado <br>
 Candidates, MS Computational Analysis and Public Policy
 
+## Links to the Videos of our Presentation:
+####: part1 for Ta-Yun: https://drive.google.com/open?id=1YIK2l11A5dWwmWvrBqFelvuJOIxiGfzs
+####: part2 for Ta-Yun: https://drive.google.com/open?id=1iUnxy5SIP-yXMNWr9KM1qHvK21GsW_xk
+
 ## Recovering Self-selected YouTube Video Categories
 We attempt to recreate the decision a YouTube user makes selecting a category for his video using other instances of self-expression in the same content. These observations are encoded in language, including the title, description, tags, and caption of the video. This repository documents the data and modeling pipeline we use in our analysis.
 
